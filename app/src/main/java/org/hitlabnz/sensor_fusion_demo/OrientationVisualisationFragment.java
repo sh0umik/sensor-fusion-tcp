@@ -60,6 +60,8 @@ public class OrientationVisualisationFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        System.out.println("Orientation Fragement");
         // Initialise the orientationProvider
         switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
         case 1:

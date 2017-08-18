@@ -7,6 +7,13 @@ import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
 import org.hitlabnz.sensor_fusion_demo.representation.Quaternion;
 
 import android.opengl.GLSurfaceView;
+import android.os.AsyncTask;
+import android.widget.TextView;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * Class that implements the rendering of a cube with the current rotation of the device that is provided by a
@@ -30,6 +37,11 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
     /**
      * Initialises a new CubeRenderer
      */
+
+    private Socket socket;
+
+    public static String w, x , y, z;
+
     public CubeRenderer() {
         mCube = new Cube();
     }
@@ -50,6 +62,8 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
      * 
      * @param gl The surface on which the cube should be rendered
      */
+
+
     public void onDrawFrame(GL10 gl) {
         // clear screen
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -72,6 +86,35 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
                 // Get the rotation from the current orientationProvider as quaternion
                 orientationProvider.getQuaternion(quaternion);
                 gl.glRotatef((float) (2.0f * Math.acos(quaternion.getW()) * 180.0f / Math.PI), quaternion.getX(), quaternion.getY(), quaternion.getZ());
+
+                w = String.valueOf(quaternion.getW());
+                x = String.valueOf(quaternion.getX());
+                y = String.valueOf(quaternion.getY());
+                z = String.valueOf(quaternion.getZ());
+
+                // send data to server
+
+                // I need the socClient here , socClient must be initialized once , the cube renderer initialized every time the view
+                // changed so cant initialize here ...
+                //  socClient is initialized in a thread in SensorSelectionActivity main class onCreate method
+
+                /*
+                try {
+
+                    DataOutputStream responseStream = new DataOutputStream(socClient.getOutputStream());
+                    String data = w + "|" + x + "|" + y + "|" + z + "\n";
+                    System.out.println("Sending : " + data);
+                    responseStream.writeBytes(data);
+                    responseStream.flush();
+
+                    //mySocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                */
+
+
+
             }
 
             // draw our object
@@ -165,4 +208,5 @@ public class CubeRenderer implements GLSurfaceView.Renderer {
     public void toggleShowCubeInsideOut() {
         this.showCubeInsideOut = !showCubeInsideOut;
     }
+
 }

@@ -1,11 +1,16 @@
 package org.hitlabnz.sensor_fusion_demo;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +19,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import org.hitlabnz.sensor_fusion_demo.orientationProvider.OrientationProvider;
+import org.hitlabnz.sensor_fusion_demo.representation.Quaternion;
 
 /**
  * The main activity where the user can select which sensor-fusion he wants to try out
@@ -37,6 +45,20 @@ public class SensorSelectionActivity extends FragmentActivity {
      */
     ViewPager mViewPager;
 
+    // Server Items
+
+    public static Socket socClient = null;
+
+    private static final int SERVER_PORT = 6777;
+
+    private String w, x , y, z;
+
+    /**
+     * The current provider of the device orientation.
+     */
+    private OrientationProvider orientationProvider = null;
+    private Quaternion quaternion = new Quaternion();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +78,23 @@ public class SensorSelectionActivity extends FragmentActivity {
         	// If a gyroscope is unavailable, display a warning.
         	displayHardwareMissingWarning();
         }
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    ServerSocket socServer = new ServerSocket(SERVER_PORT);
+                    while (true) {
+                        System.out.println("Init Socket Once and Alive");
+                        socClient = socServer.accept();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void displayHardwareMissingWarning() {
@@ -144,5 +183,6 @@ public class SensorSelectionActivity extends FragmentActivity {
             return null;
         }
     }
+
 
 }
